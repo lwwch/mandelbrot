@@ -10,6 +10,12 @@ function magnitude(x, y) {
 }
 
 var ZOOM_OUT_LIMIT = 0.001;
+var PAN_LIMIT = 1.0 / ZOOM_OUT_LIMIT;
+function panlimit(v) {
+  if (v > PAN_LIMIT) return PAN_LIMIT;
+  if (v < -PAN_LIMIT) return -PAN_LIMIT;
+  return v;
+}
 
 class Matrix {
   constructor(buf) {
@@ -325,8 +331,8 @@ function main() {
         prog.zoom = Math.max(z - (z * dy * 0.01), ZOOM_OUT_LIMIT);
       } else {
         // Panning
-        prog.offset.x -= dx * scale;
-        prog.offset.y += dy * scale * ar;
+        prog.offset.x = panlimit(prog.offset.x - dx * scale);
+        prog.offset.y = panlimit(prog.offset.y + dy * scale * ar);
       }
       requestAnimationFrame(render);
     }
