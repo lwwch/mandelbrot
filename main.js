@@ -5,6 +5,10 @@
 // MIT License
 //
 
+function magnitude(x, y) {
+  return Math.sqrt(x*x + y*y);
+}
+
 class Matrix {
   constructor(buf) {
     var data = buf || [
@@ -62,16 +66,6 @@ class Matrix {
       0, 0, 1, 0,
       x, y, 0, 1
     ]));
-  }
-
-  log() {
-    var d = this._data;
-    console.log("Matrix:");
-    console.log([d[0], d[1], d[2], d[3]]);
-    console.log([d[4], d[5], d[6], d[7]]);
-    console.log([d[8], d[9], d[10], d[11]]);
-    console.log([d[12], d[13], d[14], d[15]]);
-    console.log("");
   }
 
   get buffer() {
@@ -246,6 +240,10 @@ function init_mandelbrot_program(gl) {
         y: 0
       }
     },
+    pinch: {
+      down: false,
+      distance: 0.0
+    },
     keys: {
       shift: false
     }
@@ -278,7 +276,6 @@ function mandelbrot_draw(app) {
 
   gl.uniformMatrix4fv(app.uniforms.mvp, false, mvp.buffer);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-  mvp.log();
 }
 
 function main() {
@@ -301,7 +298,6 @@ function main() {
   }
 
   function mouse_down(e) {
-    console.log(e);
     prog.mouse.down = true;
     prog.mouse.last.x = e.x;
     prog.mouse.last.y = e.y;
@@ -325,7 +321,6 @@ function main() {
         // Zooming
         var z = prog.zoom;
         prog.zoom = Math.max(z - (z * dy * 0.01), .0001);
-        console.log("SCALE " + prog.zoom);
       } else {
         // Panning
         var scale = 0.01 / prog.zoom;
@@ -339,21 +334,70 @@ function main() {
   }
 
   function key_down(e) {
-    prog.keys.shift = e.shiftKey;
-    console.log(e.shiftKey);
+    prog.keys.shift = e.altKey;
   }
 
   function key_up(e) {
     prog.keys.shift = e.shiftKey;
-    console.log(e.shiftKey);
+  }
+
+  function touch_start(e) {
+    e.preventDefault();
+    if (e.touches.length == 1) {
+      prog.mouse.down = true;
+      prog.pinch.down = false;
+      prog.mouse.last.x = e.touches[0].clientX;
+      prog.mouse.last.y = e.touches[0].clientY;
+    } else if (e.touches.length == 2) {
+      prog.pinch.down = true;
+      prog.mouse.down = false;
+      var t0 = e.touches[0];
+      var t1 = e.touches[1];
+      prog.pinch.distance = magnitude(
+        t1.clientX - t0.clientX,
+        t1.clientY - t0.clientY);
+    }
+    requestAnimationFrame(render);
+  }
+  // TODO: disable zoom on html page?
+
+  function touch_move(e) {
+    e.preventDefault();
+    if (prog.mouse.down) {
+      mouse_move({
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY
+      });
+    } else if (prog.pinch.down) {
+      var last_distance = prog.pinch.distance;
+      var t0 = e.touches[0];
+      var t1 = e.touches[1];
+      prog.pinch.distance = magnitude(
+        t1.clientX - t0.clientX,
+        t1.clientY - t0.clientY);
+      var delta = prog.pinch.distance - last_distance;
+      var z = prog.zoom;
+      prog.zoom = Math.max(z - (z * -delta * 0.01), .0001);
+    }
+    requestAnimationFrame(render);
+  }
+
+  function touch_end(e) {
+    e.preventDefault();
+    prog.mouse.down = false;
+    prog.pinch.down = false;
   }
 
   canvas.onmousedown = mouse_down;
   canvas.onmouseup = mouse_up;
   canvas.onmousemove = mouse_move;
   canvas.onmouseleave = mouse_up;
-  document.addEventListener('keydown', key_down);
-  document.addEventListener('keyup', key_up);
+  canvas.addEventListener("touchstart", touch_start);
+  canvas.addEventListener("touchmove", touch_move);
+  canvas.addEventListener("touchend", touch_end);
+  canvas.addEventListener("touchcancel", touch_end);
+  document.addEventListener("keydown", key_down);
+  document.addEventListener("keyup", key_up);
 
   requestAnimationFrame(render);
 }
