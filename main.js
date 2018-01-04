@@ -414,6 +414,7 @@ function main(cid, use_fullscreen) {
   document.addEventListener("keydown", key_down);
   document.addEventListener("keyup", key_up);
 
+  resize();
   if (use_fullscreen) {
     fullscreen();
     window.addEventListener("resize", resize);
