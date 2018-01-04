@@ -302,7 +302,7 @@ function main(cid, use_fullscreen) {
   }
 
   function resize() {
-    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.viewport(0, 0, canvas.scrollWidth, canvas.scrollHeight);
     requestAnimationFrame(render);
   }
 
