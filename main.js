@@ -286,10 +286,10 @@ function mandelbrot_draw(app) {
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
 
-function main() {
+function main(cid, use_fullscreen) {
 	// Much of the WebGL setup/helpers are adapated from:
   // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Getting_started_with_WebGL
-	const canvas = document.querySelector("#mandelbrot");
+	const canvas = document.querySelector(cid);
   const gl = canvas.getContext("webgl");
   if (!gl) {
     alert("You don't have WebGL. Get a better browser.");
@@ -298,7 +298,8 @@ function main() {
 
   var prog = init_mandelbrot_program(gl);
   function resize() {
-    console.log("resizing...");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
     gl.viewport(0, 0, canvas.width, canvas.height);
   }
 
@@ -412,11 +413,11 @@ function main() {
   canvas.addEventListener("touchcancel", touch_end);
   document.addEventListener("keydown", key_down);
   document.addEventListener("keyup", key_up);
-  canvas.addEventListener("resize", resize);
 
   resize();
-  fullscreen();
+  if (use_fullscreen) {
+    fullscreen();
+    window.addEventListener("resize", resize);
+  }
   requestAnimationFrame(render);
 }
-
-main();
