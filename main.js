@@ -297,10 +297,13 @@ function main(cid, use_fullscreen) {
   }
 
   var prog = init_mandelbrot_program(gl);
+  function render(ts) {
+    mandelbrot_draw(prog);
+  }
+
   function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
     gl.viewport(0, 0, canvas.width, canvas.height);
+    requestAnimationFrame(render);
   }
 
   function fullscreen() {
@@ -309,10 +312,6 @@ function main(cid, use_fullscreen) {
     resize();
   }
   
-  function render(ts) {
-    mandelbrot_draw(prog);
-  }
-
   function mouse_down(e) {
     prog.mouse.down = true;
     prog.mouse.last.x = e.x;
@@ -411,6 +410,7 @@ function main(cid, use_fullscreen) {
   canvas.addEventListener("touchmove", touch_move);
   canvas.addEventListener("touchend", touch_end);
   canvas.addEventListener("touchcancel", touch_end);
+  canvas.addEventListener("resize", resize);
   document.addEventListener("keydown", key_down);
   document.addEventListener("keyup", key_up);
 
