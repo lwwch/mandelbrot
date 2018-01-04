@@ -9,6 +9,8 @@ function magnitude(x, y) {
   return Math.sqrt(x*x + y*y);
 }
 
+var ZOOM_OUT_LIMIT = 0.001;
+
 class Matrix {
   constructor(buf) {
     var data = buf || [
@@ -314,18 +316,17 @@ function main() {
       var dx = e.x - prog.mouse.last.x;
       var dy = e.y - prog.mouse.last.y;
 
-      // TODO: compute pixel ratio so that we have 1:1 movement for mouse
+      var scale = 2.0 / prog.zoom / prog.gl.drawingBufferWidth;
       var ar = prog.gl.drawingBufferWidth / prog.gl.drawingBufferHeight;
 
       if (prog.keys.shift) {
         // Zooming
         var z = prog.zoom;
-        prog.zoom = Math.max(z - (z * dy * 0.01), .0001);
+        prog.zoom = Math.max(z - (z * dy * 0.01), ZOOM_OUT_LIMIT);
       } else {
         // Panning
-        var scale = 0.01 / prog.zoom;
-        prog.offset.x -= dx * scale / ar;
-        prog.offset.y += dy * scale;
+        prog.offset.x -= dx * scale;
+        prog.offset.y += dy * scale * ar;
       }
       requestAnimationFrame(render);
     }
@@ -377,7 +378,7 @@ function main() {
         t1.clientY - t0.clientY);
       var delta = prog.pinch.distance - last_distance;
       var z = prog.zoom;
-      prog.zoom = Math.max(z - (z * -delta * 0.01), .0001);
+      prog.zoom = Math.max(z - (z * -delta * 0.01), ZOOM_OUT_LIMIT);
     }
     requestAnimationFrame(render);
   }
