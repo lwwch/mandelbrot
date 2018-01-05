@@ -302,13 +302,19 @@ function main(cid, use_fullscreen) {
   }
 
   function resize() {
-    gl.viewport(0, 0, canvas.scrollWidth, canvas.scrollHeight);
+    if (use_fullscreen) {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    } else {
+      var p = canvas.parentNode;
+      canvas.width = p.clientWidth;
+      canvas.height = p.clientHeight;
+    }
+    gl.viewport(0, 0, canvas.width, canvas.height);
     requestAnimationFrame(render);
   }
 
   function fullscreen() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
     resize();
   }
   
@@ -414,10 +420,9 @@ function main(cid, use_fullscreen) {
   document.addEventListener("keydown", key_down);
   document.addEventListener("keyup", key_up);
 
-  resize();
   if (use_fullscreen) {
-    fullscreen();
     window.addEventListener("resize", resize);
   }
+  resize();
   requestAnimationFrame(render);
 }

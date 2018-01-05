@@ -3,6 +3,7 @@
     <head>
         <title>Mandelbrot Visualization</title>
         <link rel="stylesheet" href="main.css">
+    </head>
 <style>
 html,body {
   margin: 0;
@@ -12,15 +13,12 @@ html,body {
 </style>
     </head>
     <body>
-      <div class="controls">
-        <input>
-
-        </input>
-      </div>
-        <canvas id="mandelbrot" width="800px" height="600px">
+      <div class="container">
+        <canvas id="mandelbrot">
             <p>Your browser does not support Canvas... maybe rethink your life.
         </canvas>
-        <script src="main.js"></script>
-        <script>main("#mandelbrot", true);</script>
+      </div>
+      <script src="main.js"></script>
+      <script>main("#mandelbrot", false);</script>
     </body>
 </html>
